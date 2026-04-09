@@ -235,67 +235,54 @@ unit-testable. An LLM here would just reintroduce the commitment bias
 the decomposition was meant to eliminate.
 
 ```
-            ┌────────────────────────────────────────────────┐
-            │  Track + CID record (joined by ISRC)           │
-            └────────────────────┬───────────────────────────┘
-                                 │
-                                 ▼
-        ┌────────────────────────────────────────────────────┐
-        │  1. EntityResolver           (pure code, no LLM)   │
-        │     - normalize names (lowercase, strip suffixes)  │
-        │     - look up each entity in the catalog           │
-        │     → EntityTags pydantic                          │
-        │       { imprint, owner, label }                    │
-        │       each tag ∈ EntityTag enum:                   │
-        │         major_frontline | major_distribution |     │
-        │         artist_services_exception | middle_tier |  │
-        │         indie_distributor | time_varying | unknown │
-        └────────────────────┬───────────────────────────────┘
-                             │
-                             ▼
-        ┌────────────────────────────────────────────────────┐
-        │  2. SignalAnalyst       (LLM, small prompt)        │
-        │     The ONLY stage that needs an LLM. Reasons over │
-        │     fuzzy/unknown entity strings, resolves rollups │
-        │     to majors, flags exceptions and time windows.  │
-        │     Constrained by SignalSet.model_json_schema()   │
-        │     so output enums are guaranteed at decode time. │
-        │     → SignalSet pydantic                           │
-        │       { imprint_group: MajorGroup|None,            │
-        │         owner_group:   MajorGroup|None,            │
-        │         exception_flag: awal_like|suspicious_owner │
-        │                       |time_varying|None,          │
-        │         has_unknown_authoritative: bool,           │
-        │         has_corroborating_cid: bool }              │
-        └────────────────────┬───────────────────────────────┘
-                             │
-                             ▼
-        ┌────────────────────────────────────────────────────┐
-        │  3. decide_bucket(signals)   (pure function)       │
-        │     match/case over SignalSet → Bucket             │
-        │     deterministic, free, unit-tested, exhaustive   │
-        │                                                    │
-        │     def decide_bucket(s: SignalSet) -> Bucket:     │
-        │         if s.has_unknown_authoritative:            │
-        │             return "unclear"                       │
-        │         if s.exception_flag == "suspicious_owner": │
-        │             return "unclear"                       │
-        │         if s.exception_flag == "awal_like":        │
-        │             return "likely_available"              │
-        │         if (s.imprint_group and s.owner_group      │
-        │             and s.imprint_group==s.owner_group):   │
-        │             return "likely_owned"                  │
-        │         ...                                        │
-        │                                                    │
-        │     ← NO LLM here. The work is already done by     │
-        │       SignalAnalyst; this is enum lookup, not      │
-        │       reasoning. Pydantic + match gives the same   │
-        │       guarantees an LLM cannot.                    │
-        └────────────────────┬───────────────────────────────┘
-                             │
-                             ▼
-                       Classification
-                       (same schema as today)
+   ┌──────────────────────────────────────┐
+   │  Track + CID record (joined by ISRC) │
+   └──────────────────┬───────────────────┘
+                      ▼
+   ┌──────────────────────────────────────┐
+   │  1. EntityResolver  (pure code)      │
+   │  normalize + catalog lookup          │
+   └──────────────────┬───────────────────┘
+                      │ EntityTags
+                      │   imprint : EntityTag
+                      │   owner   : EntityTag
+                      │   label   : EntityTag
+                      ▼
+   ┌──────────────────────────────────────┐
+   │  2. SignalAnalyst  (LLM — only one)  │
+   │  reasons over fuzzy entities,        │
+   │  resolves rollups, flags exceptions  │
+   │  output constrained by               │
+   │  SignalSet.model_json_schema()       │
+   └──────────────────┬───────────────────┘
+                      │ SignalSet
+                      │   imprint_group : MajorGroup?
+                      │   owner_group   : MajorGroup?
+                      │   exception_flag: ExceptionFlag?
+                      │   has_unknown_authoritative : bool
+                      │   has_corroborating_cid     : bool
+                      ▼
+   ┌──────────────────────────────────────┐
+   │  3. decide_bucket(signals)           │
+   │  pure function — match over enums    │
+   │  deterministic, free, unit-tested    │
+   │  NO LLM here                         │
+   └──────────────────┬───────────────────┘
+                      ▼
+                Classification
+                (same schema)
+```
+
+`decide_bucket` in pseudo-Python:
+
+```python
+def decide_bucket(s: SignalSet) -> Bucket:
+    if s.has_unknown_authoritative:           return "unclear"
+    if s.exception_flag == "suspicious_owner": return "unclear"
+    if s.exception_flag == "awal_like":        return "likely_available"
+    if s.imprint_group and s.owner_group and s.imprint_group == s.owner_group:
+        return "likely_owned"
+    ...
 ```
 
 **Why `decide_bucket` is a pure function and not an LLM call**
