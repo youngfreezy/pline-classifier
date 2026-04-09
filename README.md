@@ -228,8 +228,11 @@ once: entity lookup, rollup-to-major, exception detection, rule-order
 arbitration, and confidence scoring. That's why we needed `gpt-4o`
 instead of `gpt-4o-mini` — small models can't juggle that many concerns.
 
-The next iteration breaks the monolith into a pipeline of small
-single-responsibility agents, each with a tiny prompt:
+The next iteration breaks the monolith into a pipeline where **only the
+hard reasoning is delegated to an LLM**. Decision logic becomes a pure
+function over typed pydantic enums, so it's deterministic, free, and
+unit-testable. An LLM here would just reintroduce the commitment bias
+the decomposition was meant to eliminate.
 
 ```
             ┌────────────────────────────────────────────────┐
@@ -238,47 +241,56 @@ single-responsibility agents, each with a tiny prompt:
                                  │
                                  ▼
         ┌────────────────────────────────────────────────────┐
-        │  1. EntityResolver           (deterministic, no LLM) │
+        │  1. EntityResolver           (pure code, no LLM)   │
         │     - normalize names (lowercase, strip suffixes)  │
-        │     - look up each entity in catalog               │
-        │     - emit tags: { imprint_tag, owner_tag,         │
-        │                    label_tag } where each tag is   │
-        │       one of: major_frontline | major_distribution │
-        │     | artist_services_exception | middle_tier      │
-        │     | indie_distributor | time_varying | unknown   │
+        │     - look up each entity in the catalog           │
+        │     → EntityTags pydantic                          │
+        │       { imprint, owner, label }                    │
+        │       each tag ∈ EntityTag enum:                   │
+        │         major_frontline | major_distribution |     │
+        │         artist_services_exception | middle_tier |  │
+        │         indie_distributor | time_varying | unknown │
         └────────────────────┬───────────────────────────────┘
                              │
                              ▼
         ┌────────────────────────────────────────────────────┐
-        │  2. SignalAnalyst   (small LLM, ~30 line prompt)   │
-        │     input: tagged entities + raw evidence          │
-        │     job: resolve rollups + flag exceptions         │
-        │     output: {                                      │
-        │       imprint_group: "UMG" | ... | null,           │
-        │       owner_group:   "Sony" | ... | null,          │
-        │       exception_flag: "awal"|"suspicious_owner"|   │
-        │                       "time_varying"|null,         │
-        │       time_window: "pre_acquisition"|"post"|null   │
-        │     }                                              │
-        │     no decision logic — just signal extraction     │
+        │  2. SignalAnalyst       (LLM, small prompt)        │
+        │     The ONLY stage that needs an LLM. Reasons over │
+        │     fuzzy/unknown entity strings, resolves rollups │
+        │     to majors, flags exceptions and time windows.  │
+        │     Constrained by SignalSet.model_json_schema()   │
+        │     so output enums are guaranteed at decode time. │
+        │     → SignalSet pydantic                           │
+        │       { imprint_group: MajorGroup|None,            │
+        │         owner_group:   MajorGroup|None,            │
+        │         exception_flag: awal_like|suspicious_owner │
+        │                       |time_varying|None,          │
+        │         has_unknown_authoritative: bool,           │
+        │         has_corroborating_cid: bool }              │
         └────────────────────┬───────────────────────────────┘
                              │
                              ▼
         ┌────────────────────────────────────────────────────┐
-        │  3. BucketDecider   (small LLM, ~20 line prompt)   │
-        │     input: ONLY the structured signals from #2     │
-        │     job: apply decision order, emit bucket         │
-        │     output: { bucket, confidence, reasoning }      │
-        │     no entity knowledge required — pure logic      │
-        └────────────────────┬───────────────────────────────┘
-                             │
-                             ▼
-        ┌────────────────────────────────────────────────────┐
-        │  4. SelfCheckAgent  (small LLM, ~15 line prompt)   │
-        │     input: signals + bucket from #3                │
-        │     job: "find a reason this is wrong;             │
-        │            if you can, demote to unclear"          │
-        │     output: pass-through OR demoted Classification │
+        │  3. decide_bucket(signals)   (pure function)       │
+        │     match/case over SignalSet → Bucket             │
+        │     deterministic, free, unit-tested, exhaustive   │
+        │                                                    │
+        │     def decide_bucket(s: SignalSet) -> Bucket:     │
+        │         if s.has_unknown_authoritative:            │
+        │             return "unclear"                       │
+        │         if s.exception_flag == "suspicious_owner": │
+        │             return "unclear"                       │
+        │         if s.exception_flag == "awal_like":        │
+        │             return "likely_available"              │
+        │         if (s.imprint_group and s.owner_group      │
+        │             and s.imprint_group==s.owner_group):   │
+        │             return "likely_owned"                  │
+        │         ...                                        │
+        │                                                    │
+        │     ← NO LLM here. The work is already done by     │
+        │       SignalAnalyst; this is enum lookup, not      │
+        │       reasoning. Pydantic + match gives the same   │
+        │       guarantees an LLM cannot.                    │
         └────────────────────┬───────────────────────────────┘
                              │
                              ▼
@@ -286,29 +298,41 @@ single-responsibility agents, each with a tiny prompt:
                        (same schema as today)
 ```
 
-**Why this is a win**
+**Why `decide_bucket` is a pure function and not an LLM call**
 
-- Each prompt fits on one screen and is **testable in isolation** —
-  unit tests can mock the upstream stages and assert one stage at a time
-- Entity resolution becomes **pure code** — catalog edits don't need
-  LLM re-runs at all for the lookup step
-- `gpt-4o-mini` becomes viable for stages 2/3/4 (~10x cheaper than
-  `gpt-4o`); total cost per request goes *down* despite 3 LLM calls
-  because each call has a much smaller prompt and shorter output
-- **Single-responsibility = debuggable** — when an eval row fails, you
-  see exactly *which stage* produced the wrong output, not "the prompt
-  is wrong somewhere"
-- SelfCheck is the safety net for the LLM's commitment bias — second
-  opinion calls reliably catch overconfident answers in eval studies
+The original v1 plan had a "BucketDecider" LLM stage here. That was
+wrong — pydantic enums + a `match` statement give compile-time
+exhaustiveness, deterministic output, zero latency, zero cost, and
+trivial unit tests. An LLM at this stage would do nothing the function
+can't, while reintroducing the exact commitment-bias failures that the
+decomposition was supposed to eliminate. The LLM belongs at the
+**signal extraction** boundary (stage 2), not at the decision boundary.
 
-**Costs**
+**Why this is a win overall**
 
-- 3 LLM calls per request instead of 1 (~2-3x latency, mitigated by
-  small prompts and the option to run stages 2-4 in async)
-- More moving parts in `service.py` — orchestration logic to wire the
-  stages and pass typed payloads between them
-- Eval harness needs `--debug` mode that dumps per-stage outputs so a
-  miss can be traced to the responsible stage
+- **One LLM call per request**, not three. Same latency as v1,
+  dramatically less drift surface.
+- **`gpt-4o-mini` becomes viable** for SignalAnalyst — its prompt is
+  ~30 lines and its output is constrained to a small enum schema,
+  which is exactly what small models are good at.
+- **Decision logic is unit-tested**, not eval-tested. `decide_bucket`
+  gets a normal pytest suite over every `SignalSet` permutation; only
+  the SignalAnalyst stage needs the LLM eval harness.
+- **Single-responsibility = debuggable**: an eval miss is either an
+  EntityResolver bug (catalog gap) or a SignalAnalyst bug (bad
+  reasoning). The blame surface shrinks by two-thirds.
+- **Catalog edits don't need LLM re-runs** for the lookup step — only
+  for SignalAnalyst's eval, and only if the new entity changes
+  reasoning, not just the lookup table.
+
+**Optional 4th stage: SelfCheckAgent**
+
+A second LLM call that re-reads SignalAnalyst's output against the raw
+evidence and asks "did the signal extraction look right?" — *not* a
+check on `decide_bucket` (which is pure code and doesn't need
+checking). Worth adding only if eval shows SignalAnalyst miscategorizing
+fuzzy entities. Default: skip it and rely on the eval harness as the
+safety net.
 
 ## Other next steps
 
