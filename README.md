@@ -221,11 +221,99 @@ LLM_PROVIDER=openai     OPENAI_MODEL=gpt-4o
 LLM_PROVIDER=anthropic  ANTHROPIC_MODEL=claude-sonnet-4-6
 ```
 
-## Next steps
+## Roadmap: decomposed sub-agent pipeline
 
-- Decompose the monolithic prompt into a pipeline of focused agents
-  (entity resolver → signal analyst → bucket decider → self-check) so
-  smaller/cheaper models become viable
+The current classifier is a single ~150-line prompt doing five jobs at
+once: entity lookup, rollup-to-major, exception detection, rule-order
+arbitration, and confidence scoring. That's why we needed `gpt-4o`
+instead of `gpt-4o-mini` — small models can't juggle that many concerns.
+
+The next iteration breaks the monolith into a pipeline of small
+single-responsibility agents, each with a tiny prompt:
+
+```
+            ┌────────────────────────────────────────────────┐
+            │  Track + CID record (joined by ISRC)           │
+            └────────────────────┬───────────────────────────┘
+                                 │
+                                 ▼
+        ┌────────────────────────────────────────────────────┐
+        │  1. EntityResolver           (deterministic, no LLM) │
+        │     - normalize names (lowercase, strip suffixes)  │
+        │     - look up each entity in catalog               │
+        │     - emit tags: { imprint_tag, owner_tag,         │
+        │                    label_tag } where each tag is   │
+        │       one of: major_frontline | major_distribution │
+        │     | artist_services_exception | middle_tier      │
+        │     | indie_distributor | time_varying | unknown   │
+        └────────────────────┬───────────────────────────────┘
+                             │
+                             ▼
+        ┌────────────────────────────────────────────────────┐
+        │  2. SignalAnalyst   (small LLM, ~30 line prompt)   │
+        │     input: tagged entities + raw evidence          │
+        │     job: resolve rollups + flag exceptions         │
+        │     output: {                                      │
+        │       imprint_group: "UMG" | ... | null,           │
+        │       owner_group:   "Sony" | ... | null,          │
+        │       exception_flag: "awal"|"suspicious_owner"|   │
+        │                       "time_varying"|null,         │
+        │       time_window: "pre_acquisition"|"post"|null   │
+        │     }                                              │
+        │     no decision logic — just signal extraction     │
+        └────────────────────┬───────────────────────────────┘
+                             │
+                             ▼
+        ┌────────────────────────────────────────────────────┐
+        │  3. BucketDecider   (small LLM, ~20 line prompt)   │
+        │     input: ONLY the structured signals from #2     │
+        │     job: apply decision order, emit bucket         │
+        │     output: { bucket, confidence, reasoning }      │
+        │     no entity knowledge required — pure logic      │
+        └────────────────────┬───────────────────────────────┘
+                             │
+                             ▼
+        ┌────────────────────────────────────────────────────┐
+        │  4. SelfCheckAgent  (small LLM, ~15 line prompt)   │
+        │     input: signals + bucket from #3                │
+        │     job: "find a reason this is wrong;             │
+        │            if you can, demote to unclear"          │
+        │     output: pass-through OR demoted Classification │
+        └────────────────────┬───────────────────────────────┘
+                             │
+                             ▼
+                       Classification
+                       (same schema as today)
+```
+
+**Why this is a win**
+
+- Each prompt fits on one screen and is **testable in isolation** —
+  unit tests can mock the upstream stages and assert one stage at a time
+- Entity resolution becomes **pure code** — catalog edits don't need
+  LLM re-runs at all for the lookup step
+- `gpt-4o-mini` becomes viable for stages 2/3/4 (~10x cheaper than
+  `gpt-4o`); total cost per request goes *down* despite 3 LLM calls
+  because each call has a much smaller prompt and shorter output
+- **Single-responsibility = debuggable** — when an eval row fails, you
+  see exactly *which stage* produced the wrong output, not "the prompt
+  is wrong somewhere"
+- SelfCheck is the safety net for the LLM's commitment bias — second
+  opinion calls reliably catch overconfident answers in eval studies
+
+**Costs**
+
+- 3 LLM calls per request instead of 1 (~2-3x latency, mitigated by
+  small prompts and the option to run stages 2-4 in async)
+- More moving parts in `service.py` — orchestration logic to wire the
+  stages and pass typed payloads between them
+- Eval harness needs `--debug` mode that dumps per-stage outputs so a
+  miss can be traced to the responsible stage
+
+## Other next steps
+
+- Promote `data/entities.json` to a Postgres `entities` table once it
+  needs non-engineer edits or audit trails
 - Promote `data/entities.json` to a Postgres `entities` table once it
   needs non-engineer edits or audit trails
 - Add territory-aware ownership for K-pop / Latin / regional cases
