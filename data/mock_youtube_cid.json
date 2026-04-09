@@ -1,0 +1,258 @@
+{
+  "USRC12400001": {
+    "asset_id": "A000000000001",
+    "isrc": "USRC12400001",
+    "title": "Midnight Runs",
+    "artist": ["Kaia Monroe"],
+    "label": "UMG",
+    "owner": "Virgin Music Group",
+    "asset_type": "sound_recording"
+  },
+  "USRC12400002": {
+    "asset_id": "A000000000002",
+    "isrc": "USRC12400002",
+    "title": "Glass Ceiling",
+    "artist": ["Kaia Monroe"],
+    "label": "UMG",
+    "owner": "Virgin Music Group",
+    "asset_type": "sound_recording"
+  },
+  "USRC12400003": {
+    "asset_id": "A000000000003",
+    "isrc": "USRC12400003",
+    "title": "Neon Prayers",
+    "artist": ["Kaia Monroe"],
+    "label": "Republic Records",
+    "owner": "Virgin Music Group",
+    "asset_type": "sound_recording"
+  },
+  "USRC12400004": {
+    "asset_id": "A000000000004",
+    "isrc": "USRC12400004",
+    "title": "Overexposed",
+    "artist": ["Kaia Monroe"],
+    "label": "Republic Records",
+    "owner": "Virgin Music Group",
+    "asset_type": "sound_recording"
+  },
+  "USRC12400005": {
+    "asset_id": "A000000000005",
+    "isrc": "USRC12400005",
+    "title": "Hollow Ground",
+    "artist": ["Kaia Monroe"],
+    "label": "UMG",
+    "owner": "Virgin Music Group",
+    "asset_type": "sound_recording"
+  },
+  "USRC12400006": {
+    "asset_id": "A000000000006",
+    "isrc": "USRC12400006",
+    "title": "Slow Burn",
+    "artist": ["Kaia Monroe"],
+    "label": "Republic Records",
+    "owner": "Virgin Music Group",
+    "asset_type": "art_track_video"
+  },
+  "USRC12400007": {
+    "asset_id": "A000000000007",
+    "isrc": "USRC12400007",
+    "title": "Vertigo",
+    "artist": ["Kaia Monroe"],
+    "label": "UMG",
+    "owner": "Virgin Music Group",
+    "asset_type": "sound_recording"
+  },
+  "USRC12400008": {
+    "asset_id": "A000000000008",
+    "isrc": "USRC12400008",
+    "title": "Last July",
+    "artist": ["Kaia Monroe"],
+    "label": "Republic Records",
+    "owner": "Virgin Music Group",
+    "asset_type": "music_video"
+  },
+  "USRC12400009": {
+    "asset_id": "A000000000009",
+    "isrc": "USRC12400009",
+    "title": "Basement Sessions",
+    "artist": ["DJ Marlo"],
+    "label": "Marlo Music",
+    "owner": "DistroKid",
+    "asset_type": "sound_recording"
+  },
+  "USRC12400010": null,
+  "USRC12400011": {
+    "asset_id": "A000000000011",
+    "isrc": "USRC12400011",
+    "title": "3AM in Echo Park",
+    "artist": ["DJ Marlo"],
+    "label": "Marlo Music",
+    "owner": "DistroKid",
+    "asset_type": "sound_recording"
+  },
+  "USRC12400012": {
+    "asset_id": "A000000000012",
+    "isrc": "USRC12400012",
+    "title": "Concrete Waves",
+    "artist": ["DJ Marlo"],
+    "label": "Marlo Music",
+    "owner": "TuneCore",
+    "asset_type": "sound_recording"
+  },
+  "USRC12400013": {
+    "asset_id": "A000000000013",
+    "isrc": "USRC12400013",
+    "title": "Frequency",
+    "artist": ["DJ Marlo"],
+    "label": "Marlo Music",
+    "owner": "DistroKid",
+    "asset_type": "sound_recording"
+  },
+  "USRC12400014": null,
+  "USRC12400015": {
+    "asset_id": "A000000000015",
+    "isrc": "USRC12400015",
+    "title": "Night Market",
+    "artist": ["DJ Marlo"],
+    "label": "Marlo Music",
+    "owner": "DistroKid",
+    "asset_type": "art_track_video"
+  },
+  "USRC12400016": {
+    "asset_id": "A000000000016",
+    "isrc": "USRC12400016",
+    "title": "Southside Groove",
+    "artist": ["DJ Marlo"],
+    "label": "Marlo Music",
+    "owner": "Empire Distribution",
+    "asset_type": "sound_recording"
+  },
+  "USRC12400017": {
+    "asset_id": "A000000000017",
+    "isrc": "USRC12400017",
+    "title": "Loop Theory",
+    "artist": ["DJ Marlo"],
+    "label": "Marlo Music",
+    "owner": "DistroKid",
+    "asset_type": "sound_recording"
+  },
+  "USRC12400018": {
+    "asset_id": "A000000000018",
+    "isrc": "USRC12400018",
+    "title": "Phantom Signals",
+    "artist": ["The Velvet Signal"],
+    "label": "Velvet Signal Records",
+    "owner": "Believe Digital",
+    "asset_type": "sound_recording"
+  },
+  "USRC12400019": {
+    "asset_id": "A000000000019",
+    "isrc": "USRC12400019",
+    "title": "Dissolve",
+    "artist": ["The Velvet Signal"],
+    "label": "Sony Music",
+    "owner": "The Orchard",
+    "asset_type": "sound_recording"
+  },
+  "USRC12400020": {
+    "asset_id": "A000000000020",
+    "isrc": "USRC12400020",
+    "title": "Wire Memory",
+    "artist": ["The Velvet Signal"],
+    "label": "Sony Music",
+    "owner": "The Orchard",
+    "asset_type": "sound_recording"
+  },
+  "USRC12400021": {
+    "asset_id": "A000000000021",
+    "isrc": "USRC12400021",
+    "title": "Half Light",
+    "artist": ["The Velvet Signal"],
+    "label": "Velvet Signal Records",
+    "owner": "Believe Digital",
+    "asset_type": "sound_recording"
+  },
+  "USRC12400022": null,
+  "USRC12400023": {
+    "asset_id": "A000000000023",
+    "isrc": "USRC12400023",
+    "title": "Static Bloom",
+    "artist": ["The Velvet Signal"],
+    "label": "Velvet Signal Records",
+    "owner": "Believe Digital",
+    "asset_type": "sound_recording"
+  },
+  "USRC12400024": {
+    "asset_id": "A000000000024",
+    "isrc": "USRC12400024",
+    "title": "Afterimage",
+    "artist": ["The Velvet Signal"],
+    "label": "Sony Music",
+    "owner": "The Orchard",
+    "asset_type": "sound_recording"
+  },
+  "USRC12400025": null,
+  "USRC12400026": {
+    "asset_id": "A000000000026",
+    "isrc": "USRC12400026",
+    "title": "Outer Reach",
+    "artist": ["The Velvet Signal"],
+    "label": "Velvet Signal Records",
+    "owner": "Too Lost",
+    "asset_type": "sound_recording"
+  },
+  "USRC12400027": {
+    "asset_id": "A000000000027",
+    "isrc": "USRC12400027",
+    "title": "Cold Open",
+    "artist": ["Kaia Monroe"],
+    "label": "RCA Records",
+    "owner": "Kaia Monroe",
+    "asset_type": "sound_recording"
+  },
+  "USRC12400028": {
+    "asset_id": "A000000000028",
+    "isrc": "USRC12400028",
+    "title": "Dust and Gold",
+    "artist": ["DJ Marlo"],
+    "label": "Marlo Music",
+    "owner": "CD Baby",
+    "asset_type": "sound_recording"
+  },
+  "USRC12400029": {
+    "asset_id": "A000000000029",
+    "isrc": "USRC12400029",
+    "title": "Wired Different",
+    "artist": ["Kaia Monroe"],
+    "label": "Warner Music Group",
+    "owner": "ADA",
+    "asset_type": "sound_recording"
+  },
+  "USRC12400030": {
+    "asset_id": "A000000000030",
+    "isrc": "USRC12400030",
+    "title": "Parallel Lines",
+    "artist": ["The Velvet Signal"],
+    "label": "Velvet Signal Records",
+    "owner": "AWAL Recordings",
+    "asset_type": "sound_recording"
+  },
+  "USRC12400031": {
+    "asset_id": "A000000000031",
+    "isrc": "USRC12400031",
+    "title": "Open Water",
+    "artist": ["DJ Marlo"],
+    "label": "Marlo Music",
+    "owner": "The Orchard Enterprises",
+    "asset_type": "sound_recording"
+  },
+  "USRC12400032": {
+    "asset_id": "A000000000032",
+    "isrc": "USRC12400032",
+    "title": "Southern Comfort",
+    "artist": ["Kaia Monroe"],
+    "label": "Sony Music",
+    "owner": "The Orchard",
+    "asset_type": "sound_recording"
+  }
+}

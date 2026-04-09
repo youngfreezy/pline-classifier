@@ -1,0 +1,109 @@
+{
+  "version": "1",
+  "notes": "Curated catalog of music industry entities used by the classifier prompt. The prompt is rendered from this file at runtime — adding/editing an entity here is the only change needed to teach the classifier about a new label or distributor.",
+  "majors": {
+    "UMG": {
+      "display_name": "Universal Music Group",
+      "frontline_labels": [
+        "Republic Records", "Interscope", "Def Jam", "Capitol", "Island",
+        "Geffen", "Polydor", "Mercury", "EMI", "Motown", "Verve", "Decca",
+        "Universal Music Latin", "Universal Music Nashville",
+        "Capitol Christian Music Group", "Blue Note", "Impulse!",
+        "Fonovisa", "Disa"
+      ],
+      "distribution_arms": [
+        "Virgin Music Group", "Universal Music Enterprises", "Ingrooves"
+      ]
+    },
+    "Sony": {
+      "display_name": "Sony Music Entertainment",
+      "frontline_labels": [
+        "Columbia", "RCA", "Epic", "Arista", "Legacy",
+        "Sony Music Latin", "Sony Music Nashville", "Sony Classical"
+      ],
+      "distribution_arms": ["The Orchard", "Too Lost", "Merlin Network"]
+    },
+    "WMG": {
+      "display_name": "Warner Music Group",
+      "frontline_labels": [
+        "Atlantic", "Warner Records", "Elektra", "Reprise", "Parlophone",
+        "Asylum", "Sire", "Roadrunner"
+      ],
+      "distribution_arms": ["ADA", "Alternative Distribution Alliance"]
+    }
+  },
+  "artist_services_exceptions": [
+    {
+      "name": "AWAL",
+      "aliases": ["AWAL Recordings"],
+      "parent": "Sony",
+      "note": "Sony-owned but artists retain ownership of masters."
+    },
+    {
+      "name": "ECM",
+      "aliases": ["ECM Records"],
+      "parent": null,
+      "note": "Independent label distributed by UMG — distribution does not imply ownership."
+    },
+    {
+      "name": "Mau5trap",
+      "aliases": [],
+      "parent": null,
+      "note": "Independent label distributed via Virgin Music Group — distribution does not imply ownership."
+    },
+    {
+      "name": "Rimas Entertainment",
+      "aliases": ["Rimas"],
+      "parent": null,
+      "note": "Independently owned, distributed through The Orchard. Masters belong to Rimas, not Sony."
+    }
+  ],
+  "middle_tier": [
+    {
+      "name": "Empire",
+      "aliases": ["Empire Distribution"],
+      "note": "Operates as both an indie distributor AND a label that signs ownership deals. Ambiguous from name alone."
+    },
+    {
+      "name": "Believe",
+      "aliases": ["Believe Digital", "Believe Music"],
+      "note": "Large indie services group that does both distribution and ownership deals."
+    }
+  ],
+  "indie_distributors": [
+    "DistroKid", "TuneCore", "CD Baby", "UnitedMasters", "Stem",
+    "Symphonic Distribution", "Ditto Music", "Amuse", "RouteNote"
+  ],
+  "time_varying": [
+    {
+      "name": "Big Machine",
+      "aliases": ["Big Machine Label Group"],
+      "history": [
+        {"until": "2019-06-30", "status": "independent"},
+        {"from": "2019-07-01", "status": "private_equity_owned", "owner": "Ithaca Holdings → HYBE"}
+      ],
+      "note": "Ownership status depends on the recording's release_date."
+    },
+    {
+      "name": "Mavin Records",
+      "aliases": ["Mavin"],
+      "history": [
+        {"until": "2024-02-19", "status": "independent"},
+        {"from": "2024-02-20", "status": "major_owned", "owner": "Universal Music Group"}
+      ],
+      "note": "UMG acquired majority stake in Feb 2024. Pre-acquisition releases are independent."
+    }
+  ],
+  "regional_majors": [
+    {
+      "name": "HYBE",
+      "scope": "Korea / global ex-US",
+      "note": "Major label in Korea, independent of UMG/Sony/WMG globally. Has US JVs (e.g. Geffen for Katseye) where ownership may differ by territory."
+    },
+    {
+      "name": "SM Entertainment",
+      "scope": "Korea",
+      "note": "Korean major; independent of the three global majors."
+    }
+  ]
+}

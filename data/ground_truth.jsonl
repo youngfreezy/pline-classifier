@@ -1,0 +1,10 @@
+{"isrc": "USRC12400001", "artist": "Kaia Monroe", "title": "Midnight Runs", "expected_bucket": "likely_owned"}
+{"isrc": "USRC12400004", "artist": "Kaia Monroe", "title": "Overexposed", "expected_bucket": "likely_owned"}
+{"isrc": "USRC12400009", "artist": "DJ Marlo", "title": "Basement Sessions", "expected_bucket": "likely_available"}
+{"isrc": "USRC12400012", "artist": "DJ Marlo", "title": "Concrete Waves", "expected_bucket": "likely_available"}
+{"isrc": "USRC12400016", "artist": "DJ Marlo", "title": "Southside Groove", "expected_bucket": "unclear"}
+{"isrc": "USRC12400017", "artist": "DJ Marlo", "title": "Loop Theory", "expected_bucket": "likely_available"}
+{"isrc": "USRC12400018", "artist": "The Velvet Signal", "title": "Phantom Signals", "expected_bucket": "unclear"}
+{"isrc": "USRC12400019", "artist": "The Velvet Signal", "title": "Dissolve", "expected_bucket": "likely_owned"}
+{"isrc": "USRC12400022", "artist": "The Velvet Signal", "title": "Tape Hiss", "expected_bucket": "unclear"}
+{"isrc": "USRC12400030", "artist": "The Velvet Signal", "title": "Parallel Lines", "expected_bucket": "likely_available"}
